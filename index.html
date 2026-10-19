@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PayPayフリマ（Yahoo!フリマ）専用 レコード出品コピペツール</title>
+  <!-- レコード写真データ (Base64) の読み込み -->
+  
+  <style>
+    :root {
+      --primary: #ff0033;
+      --primary-dark: #cc0029;
+      --secondary: #2f5597;
+      --bg: #f5f6f8;
+      --card-bg: #ffffff;
+      --text: #222222;
+      --text-muted: #666666;
+      --border: #e0e0e0;
+      --accent: #fff2cc;
+      --success: #28a745;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 80px;
+    }
+    header {
+      background: linear-gradient(135deg, #ff0033 0%, #ff5e62 100%);
+      color: white;
+      padding: 16px 24px;
+      box-shadow: 0 4px 12px rgba(255, 0, 51, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge-fee {
+      background: #ffec3d;
+      color: #873800;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn-link {
+      background: white;
+      color: var(--primary);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 13px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-link:hover {
+      background: #fdf0f0;
+      transform: translateY(-1px);
+    }
+    .container {
+      max-width: 1300px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+    .guide-banner {
+      background: #e8f4fd;
+      border-left: 4px solid #2f5597;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .guide-banner strong {
+      color: #1f3864;
+    }
+    .control-panel {
+      background: var(--card-bg);
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      max-width: 350px;
+      position: relative;
+    }
+    .search-input {
+      width: 100%;
+      padding: 8px 12px 8px 32px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 13px;
+      outline: none;
+    }
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 13px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .card:hover {
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    .card.high-value {
+      border: 2px solid #ff9800;
+      background: #fffdf9;
+    }
+    .card.is-done {
+      opacity: 0.5;
+      background: #ebebeb;
+      border-color: #ccc;
+    }
+    .card-header {
+      padding: 14px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .card.high-value .card-header {
+      background: #fff8e1;
+    }
+    .tag-category {
+      display: inline-block;
+      background: #e9ecef;
+      color: #495057;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .card-artist {
+      font-size: 13px;
+      color: #555;
+      margin-top: 2px;
+    }
+    .card-body {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    /* 写真プレビュー＆コピーエリア */
+    .photos-container {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .photos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #495057;
+    }
+    .photos-list {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .photo-thumb-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 6px;
+      flex-shrink: 0;
+      width: 120px;
+    }
+    .photo-thumb-card img {
+      width: 108px;
+      height: 108px;
+      object-fit: cover;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .photo-thumb-card img:hover {
+      transform: scale(1.04);
+    }
+    .photo-thumb-label {
+      font-size: 10px;
+      color: #777;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+    .btn-copy-img {
+      width: 100%;
+      background: #e65100;
+      color: white;
+      border: none;
+      padding: 5px 4px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .btn-copy-img:hover {
+      background: #bf360c;
+    }
+    .btn-copy-img.copied {
+      background: var(--success) !important;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+    }
+    .price-tag {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .fee-hint {
+      font-size: 11px;
+      color: #666;
+      margin-top: -4px;
+      text-align: right;
+    }
+    .copy-group {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .copy-group-label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #555;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .copy-val {
+      font-size: 12px;
+      background: white;
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid #ced4da;
+      color: #333;
+      white-space: pre-wrap;
+      max-height: 60px;
+      overflow-y: auto;
+      font-family: inherit;
+    }
+    .btn-copy {
+      background: #2f5597;
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy:hover {
+      background: #1f3864;
+    }
+    .btn-copy.copied {
+      background: var(--success) !important;
+    }
+    .btn-copy-main {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .btn-copy-main:hover {
+      background: var(--primary-dark);
+    }
+    .btn-copy-main.copied {
+      background: var(--success) !important;
+    }
+    .done-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #666;
+      cursor: pointer;
+      user-select: none;
+    }
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(33, 37, 41, 0.95);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 1000;
+      max-width: 400px;
+      line-height: 1.4;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* モーダル画像拡大 */
+    #imageModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 16px;
+      padding: 20px;
+    }
+    #imageModal.active {
+      display: flex;
+    }
+    #modalImg {
+      max-width: 90vw;
+      max-height: 80vh;
+      border-radius: 8px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
+    .modal-close {
+      background: white;
+      color: #333;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>
+      <span>PayPayフリマ（Yahoo!フリマ）出品コピペツール</span>
+      <span class="badge-fee">販売手数料 5%</span>
+    </h1>
+    <div class="header-actions">
+      <a href="https://paypayfleamarket.yahoo.co.jp/sell" target="_blank" class="btn-link">
+        🚀 Yahoo!フリマ出品画面を開く ↗
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="guide-banner">
+    <strong>💡 このツールの使い方（出品爆速化）：</strong><br>
+    ・各商品の<strong>「📋 画像をコピー」</strong>ボタンを押すと、クリップボードに画像がコピーされます！<br>
+    ・Yahoo!フリマの出品画面を開き、<strong>そのまま [Cmd + V]（貼り付け）</strong>を押すだけで画像がアップロードされます！<br>
+    ・さらにタイトル・販売価格・商品説明文もワンクリックでコピーできます（試聴環境なし・現状渡しジャンク免責文言組込済）。
+  </div>
+
+  <div class="control-panel">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="setTab(this, 'all')">全商品（45点）</button>
+      <button class="tab-btn" onclick="setTab(this, 'solo')">🔥 単品おすすめ高額盤</button>
+      <button class="tab-btn" onclick="setTab(this, 'sets')">📦 おすすめセット売り（6セット）</button>
+      <button class="tab-btn" onclick="setTab(this, 'stones')">ストーンズ</button>
+      <button class="tab-btn" onclick="setTab(this, 'rod')">ロッド・スチュワート</button>
+      <button class="tab-btn" onclick="setTab(this, 'classic')">クラシック</button>
+    </div>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="アーティスト・曲名で検索..." oninput="handleSearch()">
+    </div>
+  </div>
+
+  <div class="grid" id="itemsGrid"></div>
+
+</div>
+
+<!-- 画像拡大モーダル -->
+<div id="imageModal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="拡大プレビュー" onclick="event.stopPropagation()">
+  <button class="modal-close" onclick="closeModal()">✕ 閉じる (Esc)</button>
+</div>
+
+<div id="toast">コピーしました！</div>
+
+<script>
+const itemsData = [{"id": 1, "category": "邦楽 / テクノ", "artist": "Yellow Magic Orchestra (YMO)", "title": "YELLOW MAGIC ORCHESTRA (米国版ジャケ国内盤)", "code": "ALR-6020 / アルファレコード", "condition": "帯付き・盤面目視良好", "price": 2800, "is_recommended_solo": true, "photos": ["PXL_20261013_234337159.jpg", "PXL_20261013_234345335.TS-000.jpg"], "description_points": "名盤『イエロー・マジック・オーケストラ』の米国版ジャケット仕様（国内盤）。帯付きです。", "listing_title": "【美盤】Yellow Magic Orchestra (YMO) / YELLOW MAGIC ORCHESTRA (米国版ジャケ国内盤) LPレコード", "listing_description": "【商品名】\nYellow Magic Orchestra (YMO) / YELLOW MAGIC ORCHESTRA (米国版ジャケ国内盤)\nLPレコード（規格品番：ALR-6020 / アルファレコード）\n\n【商品状態・付属品】\n・ジャケット：帯付き・盤面目視良好\n・付属：写真に写っているものが全てとなります。\n名盤『イエロー・マジック・オーケストラ』の米国版ジャケット仕様（国内盤）。帯付きです。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 2, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "TATTOO YOU (刺青の男)", "code": "COC 16052 / USオリジナル盤", "condition": "シュリンク残存・ステッカー付・盤面目視良好", "price": 3500, "is_recommended_solo": true, "photos": ["PXL_20261013_234208203.jpg", "PXL_20261013_234224132.jpg"], "description_points": "名曲「Start Me Up」収録。USオリジナル盤で貴重な当時のシュリンクフィルムとハイプステッカーが残っています。", "listing_title": "【美盤】The Rolling Stones / TATTOO YOU (刺青の男) LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / TATTOO YOU (刺青の男)\nLPレコード（規格品番：COC 16052 / USオリジナル盤）\n\n【商品状態・付属品】\n・ジャケット：シュリンク残存・ステッカー付・盤面目視良好\n・付属：写真に写っているものが全てとなります。\n名曲「Start Me Up」収録。USオリジナル盤で貴重な当時のシュリンクフィルムとハイプステッカーが残っています。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 3, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "IT'S ONLY ROCK 'N ROLL", "code": "ESS-63003 / 東芝EMI国内盤", "condition": "帯付き（定価2,000円表記・美品）", "price": 2400, "is_recommended_solo": false, "photos": ["PXL_20261014_000119996.jpg", "PXL_20261014_000127295.jpg"], "description_points": "1974年名盤。国内盤の帯付きでジャケットも比較的綺麗な状態です。", "listing_title": "【美盤】The Rolling Stones / IT'S ONLY ROCK 'N ROLL LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / IT'S ONLY ROCK 'N ROLL\nLPレコード（規格品番：ESS-63003 / 東芝EMI国内盤）\n\n【商品状態・付属品】\n・ジャケット：帯付き（定価2,000円表記・美品）\n・付属：写真に写っているものが全てとなります。\n1974年名盤。国内盤の帯付きでジャケットも比較的綺麗な状態です。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 4, "category": "邦楽ポップス", "artist": "サザンオールスターズ", "title": "10ナンバーズ・からっと (10 NUMBERS CARAT)", "code": "VIH-6042 / ビクター国内盤", "condition": "帯付き（いとしのエリー表記）", "price": 1980, "is_recommended_solo": false, "photos": ["PXL_20261013_234458318.TS-000.jpg", "PXL_20261013_234530520.TS-000.jpg"], "description_points": "「いとしのエリー」「気分しだいで責めないで」収録のセカンドアルバム。帯付き。", "listing_title": "【美盤】サザンオールスターズ / 10ナンバーズ・からっと (10 NUMBERS CARAT) LPレコード", "listing_description": "【商品名】\nサザンオールスターズ / 10ナンバーズ・からっと (10 NUMBERS CARAT)\nLPレコード（規格品番：VIH-6042 / ビクター国内盤）\n\n【商品状態・付属品】\n・ジャケット：帯付き（いとしのエリー表記）\n・付属：写真に写っているものが全てとなります。\n「いとしのエリー」「気分しだいで責めないで」収録のセカンドアルバム。帯付き。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 5, "category": "邦楽ポップス", "artist": "サザンオールスターズ", "title": "タイニイ・バブルス (TINY BUBBLES)", "code": "VIH-6068 / ビクター国内盤", "condition": "帯なし・ジャケット良好", "price": 980, "is_recommended_solo": false, "photos": ["PXL_20261013_234617149.jpg", "PXL_20261013_234626279.jpg"], "description_points": "「C調言葉にご用心」「私はピアノ」収録の名盤サードアルバム。", "listing_title": "【美盤】サザンオールスターズ / タイニイ・バブルス (TINY BUBBLES) LPレコード", "listing_description": "【商品名】\nサザンオールスターズ / タイニイ・バブルス (TINY BUBBLES)\nLPレコード（規格品番：VIH-6068 / ビクター国内盤）\n\n【商品状態・付属品】\n・ジャケット：帯なし・ジャケット良好\n・付属：写真に写っているものが全てとなります。\n「C調言葉にご用心」「私はピアノ」収録の名盤サードアルバム。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 6, "category": "邦楽ロック", "artist": "萩原健一 (ショーケン)", "title": "SHANTI SHANTI LIVE (シャンティ・シャンティ・ライヴ)", "code": "BMC-7015〜16 / バーボン 2枚組", "condition": "帯付き・特別付録16P写真集付き", "price": 1800, "is_recommended_solo": false, "photos": ["PXL_20261013_234902320.jpg", "PXL_20261013_234909344.jpg", "PXL_20261013_234916845.jpg"], "description_points": "貴重な2枚組ライヴ盤。特別付録の16P特大カラー写真集が付属しています。", "listing_title": "【美盤】萩原健一 (ショーケン) / SHANTI SHANTI LIVE (シャンティ・シャンティ・ライヴ) LPレコード", "listing_description": "【商品名】\n萩原健一 (ショーケン) / SHANTI SHANTI LIVE (シャンティ・シャンティ・ライヴ)\nLPレコード（規格品番：BMC-7015〜16 / バーボン 2枚組）\n\n【商品状態・付属品】\n・ジャケット：帯付き・特別付録16P写真集付き\n・付属：写真に写っているものが全てとなります。\n貴重な2枚組ライヴ盤。特別付録の16P特大カラー写真集が付属しています。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 7, "category": "邦楽ロック", "artist": "萩原健一 (ショーケン)", "title": "White & Blue (ベストアルバム)", "code": "BMD-1009 / バーボン国内盤", "condition": "帯付き・エンボス加工白ジャケット", "price": 2200, "is_recommended_solo": false, "photos": ["PXL_20261013_235307764.jpg", "PXL_20261013_235316478.jpg"], "description_points": "ショーケンの代表曲を収めたベスト盤。エンボス白ジャケットに帯付きです。", "listing_title": "【美盤】萩原健一 (ショーケン) / White & Blue (ベストアルバム) LPレコード", "listing_description": "【商品名】\n萩原健一 (ショーケン) / White & Blue (ベストアルバム)\nLPレコード（規格品番：BMD-1009 / バーボン国内盤）\n\n【商品状態・付属品】\n・ジャケット：帯付き・エンボス加工白ジャケット\n・付属：写真に写っているものが全てとなります。\nショーケンの代表曲を収めたベスト盤。エンボス白ジャケットに帯付きです。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 8, "category": "洋楽ロック", "artist": "Jefferson Starship", "title": "GOLD (ゴールド ベスト)", "code": "BZL1-3247 / Grunt 米国盤", "condition": "シュリンク残存・米国盤", "price": 1500, "is_recommended_solo": false, "photos": ["PXL_20261013_233745787.jpg", "PXL_20261013_233803672.TS-000.jpg"], "description_points": "ジェファーソン・スターシップのベストアルバム。US原盤、シュリンク付き。", "listing_title": "【美盤】Jefferson Starship / GOLD (ゴールド ベスト) LPレコード", "listing_description": "【商品名】\nJefferson Starship / GOLD (ゴールド ベスト)\nLPレコード（規格品番：BZL1-3247 / Grunt 米国盤）\n\n【商品状態・付属品】\n・ジャケット：シュリンク残存・米国盤\n・付属：写真に写っているものが全てとなります。\nジェファーソン・スターシップのベストアルバム。US原盤、シュリンク付き。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 9, "category": "洋楽ポップス", "artist": "ABBA (アバ)", "title": "THE ALBUM (ジ・アルバム)", "code": "SD 19164 / Atlantic 米国盤", "condition": "シュリンク残存・米国盤", "price": 1200, "is_recommended_solo": false, "photos": ["PXL_20261013_235651008.MP.jpg", "PXL_20261013_235657760.jpg"], "description_points": "「Take a Chance on Me」等収録。シュリンク付き米国盤。", "listing_title": "【美盤】ABBA (アバ) / THE ALBUM (ジ・アルバム) LPレコード", "listing_description": "【商品名】\nABBA (アバ) / THE ALBUM (ジ・アルバム)\nLPレコード（規格品番：SD 19164 / Atlantic 米国盤）\n\n【商品状態・付属品】\n・ジャケット：シュリンク残存・米国盤\n・付属：写真に写っているものが全てとなります。\n「Take a Chance on Me」等収録。シュリンク付き米国盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 10, "category": "洋楽ロック", "artist": "The Beatles (ザ・ビートルズ)", "title": "LOVE SONGS (ラブ・ソングス)", "code": "EAS-50007〜8 / 東芝EMI 2枚組", "condition": "帯付き・金箔エンボスジャケ・ブックレット付", "price": 2980, "is_recommended_solo": true, "photos": ["PXL_20261013_235939007.jpg", "PXL_20261013_235951899.TS-000.MP.jpg"], "description_points": "ビートルズ珠玉のラブソング集2枚組。豪華金箔エンボスジャケット＆帯付き。", "listing_title": "【美盤】The Beatles (ザ・ビートルズ) / LOVE SONGS (ラブ・ソングス) LPレコード", "listing_description": "【商品名】\nThe Beatles (ザ・ビートルズ) / LOVE SONGS (ラブ・ソングス)\nLPレコード（規格品番：EAS-50007〜8 / 東芝EMI 2枚組）\n\n【商品状態・付属品】\n・ジャケット：帯付き・金箔エンボスジャケ・ブックレット付\n・付属：写真に写っているものが全てとなります。\nビートルズ珠玉のラブソング集2枚組。豪華金箔エンボスジャケット＆帯付き。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 11, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "STILL LIFE (スティル・ライフ 米国盤)", "code": "COC 39113 / USオリジナル盤", "condition": "見開きジャケ・オリジナルインナー付", "price": 1200, "is_recommended_solo": false, "photos": ["PXL_20261013_235606767.jpg", "PXL_20261013_235612242.jpg"], "description_points": "1981年アメリカツアーの実況録音ライヴ盤。USオリジナル盤。", "listing_title": "【美盤】The Rolling Stones / STILL LIFE (スティル・ライフ 米国盤) LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / STILL LIFE (スティル・ライフ 米国盤)\nLPレコード（規格品番：COC 39113 / USオリジナル盤）\n\n【商品状態・付属品】\n・ジャケット：見開きジャケ・オリジナルインナー付\n・付属：写真に写っているものが全てとなります。\n1981年アメリカツアーの実況録音ライヴ盤。USオリジナル盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 12, "category": "洋楽ポップス", "artist": "Chicago (シカゴ)", "title": "CHICAGO IX - GREATEST HITS", "code": "PC 33900 / Columbia 米国盤", "condition": "シュリンク残存・米国盤", "price": 1200, "is_recommended_solo": false, "photos": ["PXL_20261013_234037273.jpg", "PXL_20261013_234044442.jpg"], "description_points": "シカゴ初期の大ヒット曲を網羅したベスト盤。US盤・シュリンク付き。", "listing_title": "【美盤】Chicago (シカゴ) / CHICAGO IX - GREATEST HITS LPレコード", "listing_description": "【商品名】\nChicago (シカゴ) / CHICAGO IX - GREATEST HITS\nLPレコード（規格品番：PC 33900 / Columbia 米国盤）\n\n【商品状態・付属品】\n・ジャケット：シュリンク残存・米国盤\n・付属：写真に写っているものが全てとなります。\nシカゴ初期の大ヒット曲を網羅したベスト盤。US盤・シュリンク付き。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 13, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "BLACK AND BLUE (ブラック・アンド・ブルー)", "code": "ESS-63005 / 東芝EMI国内盤", "condition": "帯付き（青緑帯・美品）", "price": 2500, "is_recommended_solo": false, "photos": ["PXL_20261013_234118227.jpg", "PXL_20261013_234126877.jpg"], "description_points": "名曲「愚か者の涙」収録。国内盤帯付きでコンディション良好です。", "listing_title": "【美盤】The Rolling Stones / BLACK AND BLUE (ブラック・アンド・ブルー) LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / BLACK AND BLUE (ブラック・アンド・ブルー)\nLPレコード（規格品番：ESS-63005 / 東芝EMI国内盤）\n\n【商品状態・付属品】\n・ジャケット：帯付き（青緑帯・美品）\n・付属：写真に写っているものが全てとなります。\n名曲「愚か者の涙」収録。国内盤帯付きでコンディション良好です。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 14, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "EMOTIONAL RESCUE (エモーショナル・レスキュー)", "code": "ESS-81285 / 東芝EMI国内盤", "condition": "特大サーモポスタージャケ＋丸ステッカー外袋付", "price": 2600, "is_recommended_solo": false, "photos": ["PXL_20261014_134808456.jpg", "PXL_20261014_134815487.jpg", "PXL_20261014_134843441.jpg"], "description_points": "1980年名盤。特大サーモグラフィポスター仕様ジャケット＋丸ステッカー付き外袋完備。", "listing_title": "【美盤】The Rolling Stones / EMOTIONAL RESCUE (エモーショナル・レスキュー) LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / EMOTIONAL RESCUE (エモーショナル・レスキュー)\nLPレコード（規格品番：ESS-81285 / 東芝EMI国内盤）\n\n【商品状態・付属品】\n・ジャケット：特大サーモポスタージャケ＋丸ステッカー外袋付\n・付属：写真に写っているものが全てとなります。\n1980年名盤。特大サーモグラフィポスター仕様ジャケット＋丸ステッカー付き外袋完備。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 15, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "SUCKING IN THE SEVENTIES", "code": "ESS-81425 / 東芝EMI国内盤", "condition": "国内初版・赤黒帯付き・美品", "price": 2400, "is_recommended_solo": false, "photos": ["PXL_20261014_134930392.jpg", "PXL_20261014_134939321.jpg"], "description_points": "70年代後期のヒット曲・レアトラック集。帯が非常に綺麗に残っています。", "listing_title": "【美盤】The Rolling Stones / SUCKING IN THE SEVENTIES LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / SUCKING IN THE SEVENTIES\nLPレコード（規格品番：ESS-81425 / 東芝EMI国内盤）\n\n【商品状態・付属品】\n・ジャケット：国内初版・赤黒帯付き・美品\n・付属：写真に写っているものが全てとなります。\n70年代後期のヒット曲・レアトラック集。帯が非常に綺麗に残っています。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 16, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "STICKY FINGERS (スティッキー・フィンガーズ)", "code": "ESS-63001 / 東芝EMI国内盤", "condition": "実物ジッパー付き特殊ジャケット＋緑帯付き（美品）", "price": 5500, "is_recommended_solo": true, "photos": ["PXL_20261014_135105462.jpg", "PXL_20261014_135114288.jpg"], "description_points": "【超注目盤！】アンディ・ウォーホル装丁の実物ジッパージャケット＋緑帯付き。開閉ファスナー付きで帯が残っている大変貴重な1枚です。", "listing_title": "【美盤】The Rolling Stones / STICKY FINGERS (スティッキー・フィンガーズ) LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / STICKY FINGERS (スティッキー・フィンガーズ)\nLPレコード（規格品番：ESS-63001 / 東芝EMI国内盤）\n\n【商品状態・付属品】\n・ジャケット：実物ジッパー付き特殊ジャケット＋緑帯付き（美品）\n・付属：写真に写っているものが全てとなります。\n【超注目盤！】アンディ・ウォーホル装丁の実物ジッパージャケット＋緑帯付き。開閉ファスナー付きで帯が残っている大変貴重な1枚です。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 17, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "ROLLING TICKETS LIVE BACK (ライブ・バック)", "code": "L18P 1061 / ポリドール国内盤", "condition": "日の丸帯付き・美品", "price": 1800, "is_recommended_solo": false, "photos": ["PXL_20261014_135215090.jpg", "PXL_20261014_135224259.jpg"], "description_points": "ストーンズ来日記念シリーズ。日の丸デザインの帯が綺麗に残っています。", "listing_title": "【美盤】The Rolling Stones / ROLLING TICKETS LIVE BACK (ライブ・バック) LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / ROLLING TICKETS LIVE BACK (ライブ・バック)\nLPレコード（規格品番：L18P 1061 / ポリドール国内盤）\n\n【商品状態・付属品】\n・ジャケット：日の丸帯付き・美品\n・付属：写真に写っているものが全てとなります。\nストーンズ来日記念シリーズ。日の丸デザインの帯が綺麗に残っています。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 18, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "UNDERCOVER (アンダーカヴァー)", "code": "ESS-91070 / 東芝EMI国内盤", "condition": "水色帯付き・幾何学ステッカージャケット", "price": 1800, "is_recommended_solo": false, "photos": ["PXL_20261014_140843882.jpg", "PXL_20261014_140853453.jpg"], "description_points": "1983年作。水色帯・インナースリーブ付きでジャケットも綺麗な状態です。", "listing_title": "【美盤】The Rolling Stones / UNDERCOVER (アンダーカヴァー) LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / UNDERCOVER (アンダーカヴァー)\nLPレコード（規格品番：ESS-91070 / 東芝EMI国内盤）\n\n【商品状態・付属品】\n・ジャケット：水色帯付き・幾何学ステッカージャケット\n・付属：写真に写っているものが全てとなります。\n1983年作。水色帯・インナースリーブ付きでジャケットも綺麗な状態です。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 19, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "SOME GIRLS (女たち)", "code": "ESS-81050 / 東芝EMI国内盤", "condition": "下巻き銀帯・著名人ダイカットくり抜きジャケ", "price": 3800, "is_recommended_solo": true, "photos": ["PXL_20261014_141049433.TS-000.MP.jpg", "PXL_20261014_141112513.jpg"], "description_points": "【大人気盤！】モンロー等の肖像権で差し替えとなった貴重な初期くり抜きジャケット仕様＋下巻き銀帯付き。", "listing_title": "【美盤】The Rolling Stones / SOME GIRLS (女たち) LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / SOME GIRLS (女たち)\nLPレコード（規格品番：ESS-81050 / 東芝EMI国内盤）\n\n【商品状態・付属品】\n・ジャケット：下巻き銀帯・著名人ダイカットくり抜きジャケ\n・付属：写真に写っているものが全てとなります。\n【大人気盤！】モンロー等の肖像権で差し替えとなった貴重な初期くり抜きジャケット仕様＋下巻き銀帯付き。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 20, "category": "洋楽ロック", "artist": "The Rolling Stones", "title": "STILL LIFE (スティル・ライフ 国内盤)", "code": "ESS-81502 / 東芝EMI国内盤", "condition": "オレンジ帯付き・見開き美品", "price": 1500, "is_recommended_solo": false, "photos": ["PXL_20261014_141203667.jpg", "PXL_20261014_141211128.jpg"], "description_points": "国内盤・オレンジ帯付き仕様。解説・インナー揃い。", "listing_title": "【美盤】The Rolling Stones / STILL LIFE (スティル・ライフ 国内盤) LPレコード", "listing_description": "【商品名】\nThe Rolling Stones / STILL LIFE (スティル・ライフ 国内盤)\nLPレコード（規格品番：ESS-81502 / 東芝EMI国内盤）\n\n【商品状態・付属品】\n・ジャケット：オレンジ帯付き・見開き美品\n・付属：写真に写っているものが全てとなります。\n国内盤・オレンジ帯付き仕様。解説・インナー揃い。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 21, "category": "洋楽ロック", "artist": "Pink Floyd (ピンク・フロイド)", "title": "ANIMALS (アニマルズ)", "code": "JC 34474 / USオリジナル盤", "condition": "シュリンク残存・ハイプステッカー付き美品", "price": 4800, "is_recommended_solo": true, "photos": ["PXL_20261014_141350396.jpg", "PXL_20261014_141358311.jpg"], "description_points": "【プログレ名盤！】USオリジナル初版。当時のシュリンクフィルムとタイトルステッカーが残っている大変状態の良い1枚です。", "listing_title": "【美盤】Pink Floyd (ピンク・フロイド) / ANIMALS (アニマルズ) LPレコード", "listing_description": "【商品名】\nPink Floyd (ピンク・フロイド) / ANIMALS (アニマルズ)\nLPレコード（規格品番：JC 34474 / USオリジナル盤）\n\n【商品状態・付属品】\n・ジャケット：シュリンク残存・ハイプステッカー付き美品\n・付属：写真に写っているものが全てとなります。\n【プログレ名盤！】USオリジナル初版。当時のシュリンクフィルムとタイトルステッカーが残っている大変状態の良い1枚です。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 22, "category": "洋楽ロック", "artist": "Eagles (イーグルス)", "title": "THE LONG RUN (ロング・ラン)", "code": "5E-508 / USオリジナル盤", "condition": "見開きジャケット・帯なし", "price": 1400, "is_recommended_solo": false, "photos": ["PXL_20261014_141531450.jpg", "PXL_20261014_141539113.jpg"], "description_points": "名曲「I Can't Tell You Why」収録のイーグルス名盤。USオリジナル盤。", "listing_title": "【美盤】Eagles (イーグルス) / THE LONG RUN (ロング・ラン) LPレコード", "listing_description": "【商品名】\nEagles (イーグルス) / THE LONG RUN (ロング・ラン)\nLPレコード（規格品番：5E-508 / USオリジナル盤）\n\n【商品状態・付属品】\n・ジャケット：見開きジャケット・帯なし\n・付属：写真に写っているものが全てとなります。\n名曲「I Can't Tell You Why」収録のイーグルス名盤。USオリジナル盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 23, "category": "洋楽AOR / ソウル", "artist": "Quincy Jones (クインシー・ジョーンズ)", "title": "THE DUDE (愛のコリーダ)", "code": "AMP-28028 / アルファ国内盤", "condition": "黄色帯付き・美品", "price": 2200, "is_recommended_solo": true, "photos": ["PXL_20261014_141713581.jpg", "PXL_20261014_141721240.jpg"], "description_points": "世界的ディスコ/AORクラシック「愛のコリーダ」収録。人気の高い国内盤黄色帯付き美品。", "listing_title": "【美盤】Quincy Jones (クインシー・ジョーンズ) / THE DUDE (愛のコリーダ) LPレコード", "listing_description": "【商品名】\nQuincy Jones (クインシー・ジョーンズ) / THE DUDE (愛のコリーダ)\nLPレコード（規格品番：AMP-28028 / アルファ国内盤）\n\n【商品状態・付属品】\n・ジャケット：黄色帯付き・美品\n・付属：写真に写っているものが全てとなります。\n世界的ディスコ/AORクラシック「愛のコリーダ」収録。人気の高い国内盤黄色帯付き美品。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 24, "category": "洋楽ロック", "artist": "Rod Stewart (ロッド・スチュワート)", "title": "A NIGHT ON THE TOWN (ナイト・オン・ザ・タウン)", "code": "BSK 3116 / 米国盤", "condition": "見開きジャケ・帯なし", "price": 1100, "is_recommended_solo": false, "photos": ["PXL_20261014_141855136.jpg", "PXL_20261014_141901161.MP.jpg"], "description_points": "「Tonight's the Night」収録の代表作。見開きジャケット仕様。", "listing_title": "【美盤】Rod Stewart (ロッド・スチュワート) / A NIGHT ON THE TOWN (ナイト・オン・ザ・タウン) LPレコード", "listing_description": "【商品名】\nRod Stewart (ロッド・スチュワート) / A NIGHT ON THE TOWN (ナイト・オン・ザ・タウン)\nLPレコード（規格品番：BSK 3116 / 米国盤）\n\n【商品状態・付属品】\n・ジャケット：見開きジャケ・帯なし\n・付属：写真に写っているものが全てとなります。\n「Tonight's the Night」収録の代表作。見開きジャケット仕様。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 25, "category": "洋楽ロック", "artist": "Rod Stewart (ロッド・スチュワート)", "title": "GREATEST HITS (グレイテスト・ヒッツ)", "code": "HS 3373 / 米国盤", "condition": "シュリンク付き・米国盤美品", "price": 1300, "is_recommended_solo": false, "photos": ["PXL_20261014_141940918.jpg", "PXL_20261014_141946516.jpg"], "description_points": "「アイム・セクシー」等収録。シュリンク付き米国盤。", "listing_title": "【美盤】Rod Stewart (ロッド・スチュワート) / GREATEST HITS (グレイテスト・ヒッツ) LPレコード", "listing_description": "【商品名】\nRod Stewart (ロッド・スチュワート) / GREATEST HITS (グレイテスト・ヒッツ)\nLPレコード（規格品番：HS 3373 / 米国盤）\n\n【商品状態・付属品】\n・ジャケット：シュリンク付き・米国盤美品\n・付属：写真に写っているものが全てとなります。\n「アイム・セクシー」等収録。シュリンク付き米国盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 26, "category": "洋楽ロック", "artist": "Rod Stewart (ロッド・スチュワート)", "title": "Foot Loose & Fancy Free", "code": "BSK 3088 / 米国盤", "condition": "シュリンク付き・ブックレット付属美品", "price": 1300, "is_recommended_solo": false, "photos": ["PXL_20261014_142042483.jpg", "PXL_20261014_142049185.jpg"], "description_points": "「Hot Legs」収録。シュリンク付きで状態良好。", "listing_title": "【美盤】Rod Stewart (ロッド・スチュワート) / Foot Loose & Fancy Free LPレコード", "listing_description": "【商品名】\nRod Stewart (ロッド・スチュワート) / Foot Loose & Fancy Free\nLPレコード（規格品番：BSK 3088 / 米国盤）\n\n【商品状態・付属品】\n・ジャケット：シュリンク付き・ブックレット付属美品\n・付属：写真に写っているものが全てとなります。\n「Hot Legs」収録。シュリンク付きで状態良好。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 27, "category": "洋楽ロック", "artist": "Rod Stewart (ロッド・スチュワート)", "title": "BODY WISHES (ボディ・ウィッシーズ)", "code": "P-11374 / 国内盤", "condition": "赤帯付き・美品", "price": 1500, "is_recommended_solo": false, "photos": ["PXL_20261014_142128343.TS-000.jpg", "PXL_20261014_142147137.TS-000.jpg"], "description_points": "「Baby Jane」収録。鮮やかな赤帯付き美品。", "listing_title": "【美盤】Rod Stewart (ロッド・スチュワート) / BODY WISHES (ボディ・ウィッシーズ) LPレコード", "listing_description": "【商品名】\nRod Stewart (ロッド・スチュワート) / BODY WISHES (ボディ・ウィッシーズ)\nLPレコード（規格品番：P-11374 / 国内盤）\n\n【商品状態・付属品】\n・ジャケット：赤帯付き・美品\n・付属：写真に写っているものが全てとなります。\n「Baby Jane」収録。鮮やかな赤帯付き美品。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 28, "category": "洋楽ロック", "artist": "Rod Stewart (ロッド・スチュワート)", "title": "Tonight I'm Yours (トゥナイト・アイム・ユアーズ)", "code": "P-11067W / 国内盤", "condition": "赤帯付き・美品", "price": 1400, "is_recommended_solo": false, "photos": ["PXL_20261014_142226841.jpg", "PXL_20261014_142236169.TS-000.jpg"], "description_points": "「Young Turks」収録。赤帯付き国内盤。", "listing_title": "【美盤】Rod Stewart (ロッド・スチュワート) / Tonight I'm Yours (トゥナイト・アイム・ユアーズ) LPレコード", "listing_description": "【商品名】\nRod Stewart (ロッド・スチュワート) / Tonight I'm Yours (トゥナイト・アイム・ユアーズ)\nLPレコード（規格品番：P-11067W / 国内盤）\n\n【商品状態・付属品】\n・ジャケット：赤帯付き・美品\n・付属：写真に写っているものが全てとなります。\n「Young Turks」収録。赤帯付き国内盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 29, "category": "洋楽ロック", "artist": "Rod Stewart (ロッド・スチュワート)", "title": "FOOLISH BEHAVIOUR (パンドラの匣)", "code": "P-10930W / 国内盤", "condition": "上巻きキャップ帯付き・美品", "price": 1500, "is_recommended_solo": false, "photos": ["PXL_20261014_142325035.jpg", "PXL_20261014_142332319.MP.jpg", "PXL_20261014_142346066.jpg"], "description_points": "上巻きキャップ帯が綺麗に残っています。", "listing_title": "【美盤】Rod Stewart (ロッド・スチュワート) / FOOLISH BEHAVIOUR (パンドラの匣) LPレコード", "listing_description": "【商品名】\nRod Stewart (ロッド・スチュワート) / FOOLISH BEHAVIOUR (パンドラの匣)\nLPレコード（規格品番：P-10930W / 国内盤）\n\n【商品状態・付属品】\n・ジャケット：上巻きキャップ帯付き・美品\n・付属：写真に写っているものが全てとなります。\n上巻きキャップ帯が綺麗に残っています。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 30, "category": "洋楽ロック", "artist": "Rod Stewart (ロッド・スチュワート)", "title": "VERY BEST OF ROD STEWART", "code": "25PP-10 / 国内盤", "condition": "来日記念帯付き・美品", "price": 1300, "is_recommended_solo": false, "photos": ["PXL_20261014_144411188.jpg", "PXL_20261014_144419296.jpg"], "description_points": "「マギー・メイ」等初期ヒット集。来日記念帯付き。", "listing_title": "【美盤】Rod Stewart (ロッド・スチュワート) / VERY BEST OF ROD STEWART LPレコード", "listing_description": "【商品名】\nRod Stewart (ロッド・スチュワート) / VERY BEST OF ROD STEWART\nLPレコード（規格品番：25PP-10 / 国内盤）\n\n【商品状態・付属品】\n・ジャケット：来日記念帯付き・美品\n・付属：写真に写っているものが全てとなります。\n「マギー・メイ」等初期ヒット集。来日記念帯付き。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 31, "category": "洋楽ロック", "artist": "The Doobie Brothers", "title": "Toulouse Street (トゥールーズ・ストリート)", "code": "WB 2634 / 米国盤", "condition": "見開きジャケ・米国盤", "price": 1400, "is_recommended_solo": false, "photos": ["PXL_20261014_142423018.jpg", "PXL_20261014_142433931.jpg"], "description_points": "「Listen to the Music」収録のドゥービーズ名盤。US盤。", "listing_title": "【美盤】The Doobie Brothers / Toulouse Street (トゥールーズ・ストリート) LPレコード", "listing_description": "【商品名】\nThe Doobie Brothers / Toulouse Street (トゥールーズ・ストリート)\nLPレコード（規格品番：WB 2634 / 米国盤）\n\n【商品状態・付属品】\n・ジャケット：見開きジャケ・米国盤\n・付属：写真に写っているものが全てとなります。\n「Listen to the Music」収録のドゥービーズ名盤。US盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 32, "category": "洋楽AOR / ロック", "artist": "The Doobie Brothers", "title": "Minute by Minute (ミニット・バイ・ミニット)", "code": "BSK 3193 / 米国盤", "condition": "米国盤・インナー付", "price": 1400, "is_recommended_solo": false, "photos": ["PXL_20261014_142523200.TS-000.jpg", "PXL_20261014_142529853.jpg"], "description_points": "「What a Fool Believes」収録のグラミー受賞名盤。US盤。", "listing_title": "【美盤】The Doobie Brothers / Minute by Minute (ミニット・バイ・ミニット) LPレコード", "listing_description": "【商品名】\nThe Doobie Brothers / Minute by Minute (ミニット・バイ・ミニット)\nLPレコード（規格品番：BSK 3193 / 米国盤）\n\n【商品状態・付属品】\n・ジャケット：米国盤・インナー付\n・付属：写真に写っているものが全てとなります。\n「What a Fool Believes」収録のグラミー受賞名盤。US盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 33, "category": "サントラ / アンビエント", "artist": "坂本龍一 (Ryuichi Sakamoto)", "title": "戦場のメリー・クリスマス (Merry Christmas Mr. Lawrence)", "code": "L28N 1008 / ロンドン国内初版", "condition": "国内初版・黒帯付き・美盤", "price": 6800, "is_recommended_solo": true, "photos": ["PXL_20261014_142559331.jpg", "PXL_20261014_142605671.jpg"], "description_points": "【最高額・争奪戦必至！】坂本龍一の世界的代表作。黒帯付き国内初版でジャケット・盤面ともに良好な大変貴重な逸品です。", "listing_title": "【美盤】坂本龍一 (Ryuichi Sakamoto) / 戦場のメリー・クリスマス (Merry Christmas Mr. Lawrence) LPレコード", "listing_description": "【商品名】\n坂本龍一 (Ryuichi Sakamoto) / 戦場のメリー・クリスマス (Merry Christmas Mr. Lawrence)\nLPレコード（規格品番：L28N 1008 / ロンドン国内初版）\n\n【商品状態・付属品】\n・ジャケット：国内初版・黒帯付き・美盤\n・付属：写真に写っているものが全てとなります。\n【最高額・争奪戦必至！】坂本龍一の世界的代表作。黒帯付き国内初版でジャケット・盤面ともに良好な大変貴重な逸品です。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 34, "category": "洋楽ポップス", "artist": "Elton John (エルトン・ジョン)", "title": "TOO LOW FOR ZERO (トゥ・ロウ・フォー・ゼロ)", "code": "25PP-90 / 国内盤", "condition": "帯付き・型抜きジャケット美品", "price": 1400, "is_recommended_solo": false, "photos": ["PXL_20261014_142840578.jpg", "PXL_20261014_142852291.jpg"], "description_points": "「I'm Still Standing」収録。帯付き・中央くり抜きギミックジャケ。", "listing_title": "【美盤】Elton John (エルトン・ジョン) / TOO LOW FOR ZERO (トゥ・ロウ・フォー・ゼロ) LPレコード", "listing_description": "【商品名】\nElton John (エルトン・ジョン) / TOO LOW FOR ZERO (トゥ・ロウ・フォー・ゼロ)\nLPレコード（規格品番：25PP-90 / 国内盤）\n\n【商品状態・付属品】\n・ジャケット：帯付き・型抜きジャケット美品\n・付属：写真に写っているものが全てとなります。\n「I'm Still Standing」収録。帯付き・中央くり抜きギミックジャケ。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 35, "category": "洋楽ロック", "artist": "David Bowie (デヴィッド・ボウイ)", "title": "LET'S DANCE (レッツ・ダンス)", "code": "EYS-81580 / 東芝EMI国内盤", "condition": "帯付き（EMIアメリカ移籍第1弾帯）・美品", "price": 3500, "is_recommended_solo": true, "photos": ["PXL_20261014_142955963.jpg", "PXL_20261014_143001554.MP.jpg"], "description_points": "【人気盤！】ナイル・ロジャース プロデュースの80s特大ヒット作。帯付き美品。", "listing_title": "【美盤】David Bowie (デヴィッド・ボウイ) / LET'S DANCE (レッツ・ダンス) LPレコード", "listing_description": "【商品名】\nDavid Bowie (デヴィッド・ボウイ) / LET'S DANCE (レッツ・ダンス)\nLPレコード（規格品番：EYS-81580 / 東芝EMI国内盤）\n\n【商品状態・付属品】\n・ジャケット：帯付き（EMIアメリカ移籍第1弾帯）・美品\n・付属：写真に写っているものが全てとなります。\n【人気盤！】ナイル・ロジャース プロデュースの80s特大ヒット作。帯付き美品。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 36, "category": "洋楽ロック", "artist": "David Bowie (デヴィッド・ボウイ)", "title": "CHANGESTWOBOWIE (美しき魂の告白 ベスト2)", "code": "RPL-8113 / RVC国内盤", "condition": "ピンク帯付き・美品", "price": 2800, "is_recommended_solo": true, "photos": ["PXL_20261014_143201393.jpg", "PXL_20261014_143210929.jpg"], "description_points": "「Starman」「Ashes to Ashes」収録の後期ベスト盤。ピンク帯付き美品。", "listing_title": "【美盤】David Bowie (デヴィッド・ボウイ) / CHANGESTWOBOWIE (美しき魂の告白 ベスト2) LPレコード", "listing_description": "【商品名】\nDavid Bowie (デヴィッド・ボウイ) / CHANGESTWOBOWIE (美しき魂の告白 ベスト2)\nLPレコード（規格品番：RPL-8113 / RVC国内盤）\n\n【商品状態・付属品】\n・ジャケット：ピンク帯付き・美品\n・付属：写真に写っているものが全てとなります。\n「Starman」「Ashes to Ashes」収録の後期ベスト盤。ピンク帯付き美品。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 37, "category": "洋楽ソウル / ファンク", "artist": "Earth, Wind & Fire", "title": "THE BEST OF EARTH, WIND & FIRE VOL. 1", "code": "FC 35647 / Columbia 米国盤", "condition": "金ステッカー付シュリンク美品", "price": 2800, "is_recommended_solo": true, "photos": ["PXL_20261014_143308179.jpg", "PXL_20261014_143315869.jpg"], "description_points": "「September」収録の世界的名ベスト盤。USオリジナル・金ステッカー付シュリンク美品。", "listing_title": "【美盤】Earth, Wind & Fire / THE BEST OF EARTH, WIND & FIRE VOL. 1 LPレコード", "listing_description": "【商品名】\nEarth, Wind & Fire / THE BEST OF EARTH, WIND & FIRE VOL. 1\nLPレコード（規格品番：FC 35647 / Columbia 米国盤）\n\n【商品状態・付属品】\n・ジャケット：金ステッカー付シュリンク美品\n・付属：写真に写っているものが全てとなります。\n「September」収録の世界的名ベスト盤。USオリジナル・金ステッカー付シュリンク美品。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 38, "category": "洋楽ポップス", "artist": "Olivia Newton-John", "title": "Physical (虹色の扉)", "code": "EMS-91035 / 国内盤", "condition": "水色帯付き・美品", "price": 1500, "is_recommended_solo": false, "photos": ["PXL_20261014_144107267.jpg", "PXL_20261014_144121717.jpg", "PXL_20261014_144145359.MP.jpg"], "description_points": "80sメガヒット「フィジカル」収録。水色帯付き。", "listing_title": "【美盤】Olivia Newton-John / Physical (虹色の扉) LPレコード", "listing_description": "【商品名】\nOlivia Newton-John / Physical (虹色の扉)\nLPレコード（規格品番：EMS-91035 / 国内盤）\n\n【商品状態・付属品】\n・ジャケット：水色帯付き・美品\n・付属：写真に写っているものが全てとなります。\n80sメガヒット「フィジカル」収録。水色帯付き。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 39, "category": "洋楽ニューウェイヴ", "artist": "ABC (エー・ビー・シー)", "title": "The Lexicon of Love (ルック・オブ・ラブ)", "code": "25PP-61 / 国内盤", "condition": "青赤帯付き・美品", "price": 1400, "is_recommended_solo": false, "photos": ["PXL_20261014_144302286.jpg", "PXL_20261014_144314542.jpg"], "description_points": "トレヴァー・ホーン制作のシンセポップ名盤。帯付き美品。", "listing_title": "【美盤】ABC (エー・ビー・シー) / The Lexicon of Love (ルック・オブ・ラブ) LPレコード", "listing_description": "【商品名】\nABC (エー・ビー・シー) / The Lexicon of Love (ルック・オブ・ラブ)\nLPレコード（規格品番：25PP-61 / 国内盤）\n\n【商品状態・付属品】\n・ジャケット：青赤帯付き・美品\n・付属：写真に写っているものが全てとなります。\nトレヴァー・ホーン制作のシンセポップ名盤。帯付き美品。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 40, "category": "クラシック", "artist": "コンヴィチュニー指揮 / ゲヴァントハウス管弦楽団", "title": "ベートーヴェン：交響曲第9番「合唱」", "code": "SFON-7560 / 国内盤", "condition": "帯なし・ジャケット経年傷み大", "price": 500, "is_recommended_solo": false, "photos": ["PXL_20261014_140152422.jpg", "PXL_20261014_140159586.jpg"], "description_points": "ベートーヴェン第9番。クラシックまとめ売り推奨盤。", "listing_title": "【美盤】コンヴィチュニー指揮 / ゲヴァントハウス管弦楽団 / ベートーヴェン：交響曲第9番「合唱」 LPレコード", "listing_description": "【商品名】\nコンヴィチュニー指揮 / ゲヴァントハウス管弦楽団 / ベートーヴェン：交響曲第9番「合唱」\nLPレコード（規格品番：SFON-7560 / 国内盤）\n\n【商品状態・付属品】\n・ジャケット：帯なし・ジャケット経年傷み大\n・付属：写真に写っているものが全てとなります。\nベートーヴェン第9番。クラシックまとめ売り推奨盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 41, "category": "クラシック", "artist": "クレットツキ指揮 / フランス国立放送管弦楽団", "title": "ベートーヴェン：交響曲第6番「田園」", "code": "M. 2239 / Concert Hall", "condition": "帯なし・シミあり", "price": 400, "is_recommended_solo": false, "photos": ["PXL_20261014_140230761.jpg", "PXL_20261014_140239260.jpg"], "description_points": "ベートーヴェン田園。コンサートホール盤。", "listing_title": "【美盤】クレットツキ指揮 / フランス国立放送管弦楽団 / ベートーヴェン：交響曲第6番「田園」 LPレコード", "listing_description": "【商品名】\nクレットツキ指揮 / フランス国立放送管弦楽団 / ベートーヴェン：交響曲第6番「田園」\nLPレコード（規格品番：M. 2239 / Concert Hall）\n\n【商品状態・付属品】\n・ジャケット：帯なし・シミあり\n・付属：写真に写っているものが全てとなります。\nベートーヴェン田園。コンサートホール盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 42, "category": "クラシック", "artist": "ヨーゼフ・クリップス指揮 / ウィーン音楽祭管弦楽団", "title": "ブラームス：交響曲第1番", "code": "M-2268 / Concert Hall", "condition": "帯なし・シミあり", "price": 400, "is_recommended_solo": false, "photos": ["PXL_20261014_140330359.jpg", "PXL_20261014_140341620.jpg"], "description_points": "ブラームス1番。コンサートホール盤。", "listing_title": "【美盤】ヨーゼフ・クリップス指揮 / ウィーン音楽祭管弦楽団 / ブラームス：交響曲第1番 LPレコード", "listing_description": "【商品名】\nヨーゼフ・クリップス指揮 / ウィーン音楽祭管弦楽団 / ブラームス：交響曲第1番\nLPレコード（規格品番：M-2268 / Concert Hall）\n\n【商品状態・付属品】\n・ジャケット：帯なし・シミあり\n・付属：写真に写っているものが全てとなります。\nブラームス1番。コンサートホール盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 43, "category": "クラシック", "artist": "ヴラド・ペルルミュテール (ピアノ)", "title": "ショパン・リサイタル", "code": "SM. 2223 / Concert Hall", "condition": "帯なし・シミあり", "price": 600, "is_recommended_solo": false, "photos": ["PXL_20261014_140419806.jpg", "PXL_20261014_140427398.jpg"], "description_points": "ショパン名曲集。コンサートホール盤。", "listing_title": "【美盤】ヴラド・ペルルミュテール (ピアノ) / ショパン・リサイタル LPレコード", "listing_description": "【商品名】\nヴラド・ペルルミュテール (ピアノ) / ショパン・リサイタル\nLPレコード（規格品番：SM. 2223 / Concert Hall）\n\n【商品状態・付属品】\n・ジャケット：帯なし・シミあり\n・付属：写真に写っているものが全てとなります。\nショパン名曲集。コンサートホール盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 44, "category": "クラシック", "artist": "ブルーノ・ワルター指揮 / コロンビア交響楽団", "title": "運命 / 未完成", "code": "OS-116 / 国内初期盤", "condition": "ジャケ中央大破損・貫通穴あり（ジャンク）", "price": 300, "is_recommended_solo": false, "photos": ["PXL_20261014_140547159.jpg", "PXL_20261014_140605199.jpg"], "description_points": "ジャケ中央に大きな穴ありのジャンク品。セットのおまけ用。", "listing_title": "【美盤】ブルーノ・ワルター指揮 / コロンビア交響楽団 / 運命 / 未完成 LPレコード", "listing_description": "【商品名】\nブルーノ・ワルター指揮 / コロンビア交響楽団 / 運命 / 未完成\nLPレコード（規格品番：OS-116 / 国内初期盤）\n\n【商品状態・付属品】\n・ジャケット：ジャケ中央大破損・貫通穴あり（ジャンク）\n・付属：写真に写っているものが全てとなります。\nジャケ中央に大きな穴ありのジャンク品。セットのおまけ用。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": 45, "category": "クラシック", "artist": "ワルター・ゲール指揮 / フランクフルト歌劇場管弦楽団", "title": "ベートーヴェン：交響曲第8番 他", "code": "M-197 / Concert Hall", "condition": "帯なし・経年シミあり", "price": 300, "is_recommended_solo": false, "photos": ["PXL_20261014_140705275.jpg", "PXL_20261014_140713399.jpg"], "description_points": "ベートーヴェン第8番。コンサートホール盤。", "listing_title": "【美盤】ワルター・ゲール指揮 / フランクフルト歌劇場管弦楽団 / ベートーヴェン：交響曲第8番 他 LPレコード", "listing_description": "【商品名】\nワルター・ゲール指揮 / フランクフルト歌劇場管弦楽団 / ベートーヴェン：交響曲第8番 他\nLPレコード（規格品番：M-197 / Concert Hall）\n\n【商品状態・付属品】\n・ジャケット：帯なし・経年シミあり\n・付属：写真に写っているものが全てとなります。\nベートーヴェン第8番。コンサートホール盤。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致は目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好な状態のものが多いですが、年代物の中古レコードとなりますので、多少のスレや経年によるチリノイズ等はご容赦ください。\n・上記理由により【現状渡し・ジャンク品扱い】としての出品となります。ヴィンテージレコードにご理解のある方のみご検討をお願いいたします。\n・「盤面やジャケットの詳しい状態をもっと見たい」という方は、コメント欄よりお気軽にお知らせください。写真を追加掲載いたします！\n\n【発送・梱包】\n・レコード専用の保護スリーブに入れ、専用ダンボールまたは厚紙緩衝材にて厳重に折れ・水濡れ対策を行って発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}];
+const setsData = [{"id": "set1", "name": "【超豪華8枚セット】ザ・ローリング・ストーンズ 名盤LPまとめ売り（帯付き多数）", "artist": "The Rolling Stones", "price": 19800, "count": 8, "items": ["STICKY FINGERS (ジッパー＋帯付)", "SOME GIRLS (くり抜き＋帯付)", "TATTOO YOU (USシュリンク)", "IT'S ONLY ROCK 'N ROLL (帯付)", "BLACK AND BLUE (帯付)", "EMOTIONAL RESCUE (ポスター付)", "SUCKING IN THE 70s (帯付)", "UNDERCOVER (帯付)"], "photos": [], "description_points": "ザ・ローリング・ストーンズの黄金期名盤LPを一気に揃えられる豪華8枚まとめ売りセットです！\nジッパー付きの『スティッキー・フィンガーズ』や、貴重な初期くり抜きジャケットの『女たち』をはじめ、国内初版帯付きやUS原盤シュリンク付きなど、コレクション性の高い人気盤ばかりを集めました。", "listing_title": "【超豪華8枚セット】ザ・ローリング・ストーンズ 名盤LPまとめ売り（帯付き多数）", "listing_description": "【商品名】\n【超豪華8枚セット】ザ・ローリング・ストーンズ 名盤LPまとめ売り（帯付き多数）\nLPレコード 8枚セット\n\n【セット内容】\n・STICKY FINGERS (ジッパー＋帯付)\n・SOME GIRLS (くり抜き＋帯付)\n・TATTOO YOU (USシュリンク)\n・IT'S ONLY ROCK 'N ROLL (帯付)\n・BLACK AND BLUE (帯付)\n・EMOTIONAL RESCUE (ポスター付)\n・SUCKING IN THE 70s (帯付)\n・UNDERCOVER (帯付)\n\n【商品の魅力・ポイント】\nザ・ローリング・ストーンズの黄金期名盤LPを一気に揃えられる豪華8枚まとめ売りセットです！\nジッパー付きの『スティッキー・フィンガーズ』や、貴重な初期くり抜きジャケットの『女たち』をはじめ、国内初版帯付きやUS原盤シュリンク付きなど、コレクション性の高い人気盤ばかりを集めました。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致はすべて目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好なものが多いですが、年代物の中古レコードのため、多少のスレや経年変化、ジャケットの傷み等がある場合がございます。\n・上記理由により【現状渡し・ジャンク品扱い（まとめ売り）】として出品いたします。\n・状態について詳しく見たい盤がございましたら、コメント欄よりお気軽にお知らせいただければ写真を追加いたします。\n\n【発送・梱包】\n・複数枚まとめて厚手のクッション材・専用ダンボールにて厳重に梱包し、発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": "set2", "name": "【名盤7タイトル一括】ロッド・スチュワート LPレコード 7枚まとめ売りセット", "artist": "Rod Stewart", "price": 7800, "count": 7, "items": ["ナイト・オン・ザ・タウン (US盤)", "グレイテスト・ヒッツ (USシュリンク)", "Foot Loose & Fancy Free (USシュリンク)", "ボディ・ウィッシーズ (国内帯付)", "トゥナイト・アイム・ユアーズ (国内帯付)", "パンドラの匣 (国内キャップ帯付)", "ベリー・ベスト・オブ・ロッド・スチュワート (来日記念帯付)"], "photos": [], "description_points": "ロッド・スチュワートの代表作＆ベスト盤を網羅した7タイトルまとめ売りセットです！\n国内盤帯付き美品やUS原盤シュリンク付きが含まれています。ロッドのハスキーボイスと名曲を一気に楽しみたい方におすすめです。", "listing_title": "【名盤7タイトル一括】ロッド・スチュワート LPレコード 7枚まとめ売りセット", "listing_description": "【商品名】\n【名盤7タイトル一括】ロッド・スチュワート LPレコード 7枚まとめ売りセット\nLPレコード 7枚セット\n\n【セット内容】\n・ナイト・オン・ザ・タウン (US盤)\n・グレイテスト・ヒッツ (USシュリンク)\n・Foot Loose & Fancy Free (USシュリンク)\n・ボディ・ウィッシーズ (国内帯付)\n・トゥナイト・アイム・ユアーズ (国内帯付)\n・パンドラの匣 (国内キャップ帯付)\n・ベリー・ベスト・オブ・ロッド・スチュワート (来日記念帯付)\n\n【商品の魅力・ポイント】\nロッド・スチュワートの代表作＆ベスト盤を網羅した7タイトルまとめ売りセットです！\n国内盤帯付き美品やUS原盤シュリンク付きが含まれています。ロッドのハスキーボイスと名曲を一気に楽しみたい方におすすめです。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致はすべて目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好なものが多いですが、年代物の中古レコードのため、多少のスレや経年変化、ジャケットの傷み等がある場合がございます。\n・上記理由により【現状渡し・ジャンク品扱い（まとめ売り）】として出品いたします。\n・状態について詳しく見たい盤がございましたら、コメント欄よりお気軽にお知らせいただければ写真を追加いたします。\n\n【発送・梱包】\n・複数枚まとめて厚手のクッション材・専用ダンボールにて厳重に梱包し、発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": "set3", "name": "【名演クラシックLP 6枚まとめ売り】ベートーヴェン第九・田園 / ブラームス / ショパン 他", "artist": "クラシック名曲オムニバス", "price": 1980, "count": 6, "items": ["ベートーヴェン：交響曲第9番「合唱」 (コンヴィチュニー)", "ベートーヴェン：交響曲第6番「田園」 (クレットツキ)", "ブラームス：交響曲第1番 (クリップス)", "ショパン・リサイタル (ペルルミュテール)", "ベートーヴェン：交響曲第8番 (ゲール)", "【おまけ】ベートーヴェン運命 / シューベルト未完成 (ワルター ※ジャケ破損)"], "photos": [], "description_points": "名指揮者・名演奏家によるクラシック名盤LPの6枚まとめ売りセットです！\n名曲ばかりを集めた入門・リスニング用の格安セットです。", "listing_title": "【名演クラシックLP 6枚まとめ売り】ベートーヴェン第九・田園 / ブラームス / ショパン 他", "listing_description": "【商品名】\n【名演クラシックLP 6枚まとめ売り】ベートーヴェン第九・田園 / ブラームス / ショパン 他\nLPレコード 6枚セット\n\n【セット内容】\n・ベートーヴェン：交響曲第9番「合唱」 (コンヴィチュニー)\n・ベートーヴェン：交響曲第6番「田園」 (クレットツキ)\n・ブラームス：交響曲第1番 (クリップス)\n・ショパン・リサイタル (ペルルミュテール)\n・ベートーヴェン：交響曲第8番 (ゲール)\n・【おまけ】ベートーヴェン運命 / シューベルト未完成 (ワルター ※ジャケ破損)\n\n【商品の魅力・ポイント】\n名指揮者・名演奏家によるクラシック名盤LPの6枚まとめ売りセットです！\n名曲ばかりを集めた入門・リスニング用の格安セットです。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致はすべて目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好なものが多いですが、年代物の中古レコードのため、多少のスレや経年変化、ジャケットの傷み等がある場合がございます。\n・上記理由により【現状渡し・ジャンク品扱い（まとめ売り）】として出品いたします。\n・状態について詳しく見たい盤がございましたら、コメント欄よりお気軽にお知らせいただければ写真を追加いたします。\n\n【発送・梱包】\n・複数枚まとめて厚手のクッション材・専用ダンボールにて厳重に梱包し、発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": "set4", "name": "【初期名盤2枚セット】サザンオールスターズ LPレコード「10ナンバーズ・からっと」「タイニイ・バブルス」", "artist": "サザンオールスターズ", "price": 2600, "count": 2, "items": ["10ナンバーズ・からっと (帯付き)", "タイニイ・バブルス (帯なし)"], "photos": [], "description_points": "サザンオールスターズの初期大名盤2作品のセットです。\n「いとしのエリー」「気分しだいで責めないで」「C調言葉にご用心」「私はピアノ」など初期の名曲が満載です。", "listing_title": "【初期名盤2枚セット】サザンオールスターズ LPレコード「10ナンバーズ・からっと」「タイニイ・バブルス」", "listing_description": "【商品名】\n【初期名盤2枚セット】サザンオールスターズ LPレコード「10ナンバーズ・からっと」「タイニイ・バブルス」\nLPレコード 2枚セット\n\n【セット内容】\n・10ナンバーズ・からっと (帯付き)\n・タイニイ・バブルス (帯なし)\n\n【商品の魅力・ポイント】\nサザンオールスターズの初期大名盤2作品のセットです。\n「いとしのエリー」「気分しだいで責めないで」「C調言葉にご用心」「私はピアノ」など初期の名曲が満載です。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致はすべて目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好なものが多いですが、年代物の中古レコードのため、多少のスレや経年変化、ジャケットの傷み等がある場合がございます。\n・上記理由により【現状渡し・ジャンク品扱い（まとめ売り）】として出品いたします。\n・状態について詳しく見たい盤がございましたら、コメント欄よりお気軽にお知らせいただければ写真を追加いたします。\n\n【発送・梱包】\n・複数枚まとめて厚手のクッション材・専用ダンボールにて厳重に梱包し、発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": "set5", "name": "【2タイトルセット・写真集付】萩原健一 (ショーケン) LPレコード「SHANTI SHANTI」「White & Blue」", "artist": "萩原健一 (ショーケン)", "price": 3600, "count": 2, "items": ["SHANTI SHANTI LIVE (帯付・2枚組・16P特大カラー写真集付)", "White & Blue ベスト (帯付・白エンボスジャケ)"], "photos": [], "description_points": "萩原健一の貴重なライヴ2枚組（特大16P写真集完備）とベスト盤の帯付きセットです！", "listing_title": "【2タイトルセット・写真集付】萩原健一 (ショーケン) LPレコード「SHANTI SHANTI」「White & Blue」", "listing_description": "【商品名】\n【2タイトルセット・写真集付】萩原健一 (ショーケン) LPレコード「SHANTI SHANTI」「White & Blue」\nLPレコード 2枚セット\n\n【セット内容】\n・SHANTI SHANTI LIVE (帯付・2枚組・16P特大カラー写真集付)\n・White & Blue ベスト (帯付・白エンボスジャケ)\n\n【商品の魅力・ポイント】\n萩原健一の貴重なライヴ2枚組（特大16P写真集完備）とベスト盤の帯付きセットです！\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致はすべて目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好なものが多いですが、年代物の中古レコードのため、多少のスレや経年変化、ジャケットの傷み等がある場合がございます。\n・上記理由により【現状渡し・ジャンク品扱い（まとめ売り）】として出品いたします。\n・状態について詳しく見たい盤がございましたら、コメント欄よりお気軽にお知らせいただければ写真を追加いたします。\n\n【発送・梱包】\n・複数枚まとめて厚手のクッション材・専用ダンボールにて厳重に梱包し、発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}, {"id": "set6", "name": "【US名盤2枚セット】The Doobie Brothers「Toulouse Street」「Minute by Minute」", "artist": "The Doobie Brothers", "price": 2500, "count": 2, "items": ["Toulouse Street (US盤・見開きジャケ)", "Minute by Minute (USオリジナル盤)"], "photos": [], "description_points": "「Listen to the Music」「What a Fool Believes」をそれぞれ収録したドゥービー・ブラザーズの代表作2枚US盤セットです。", "listing_title": "【US名盤2枚セット】The Doobie Brothers「Toulouse Street」「Minute by Minute」", "listing_description": "【商品名】\n【US名盤2枚セット】The Doobie Brothers「Toulouse Street」「Minute by Minute」\nLPレコード 2枚セット\n\n【セット内容】\n・Toulouse Street (US盤・見開きジャケ)\n・Minute by Minute (USオリジナル盤)\n\n【商品の魅力・ポイント】\n「Listen to the Music」「What a Fool Believes」をそれぞれ収録したドゥービー・ブラザーズの代表作2枚US盤セットです。\n\n【重要・商品の状態について（必ずお読みください）】\n・ジャケットと中身のレコード盤面の一致はすべて目視にて確認済みです。\n・現在レコードプレーヤーなどの試聴環境がないため、音飛びやノイズ等の【再生確認・動作確認は行っておりません】。\n・盤面は目視確認では比較的良好なものが多いですが、年代物の中古レコードのため、多少のスレや経年変化、ジャケットの傷み等がある場合がございます。\n・上記理由により【現状渡し・ジャンク品扱い（まとめ売り）】として出品いたします。\n・状態について詳しく見たい盤がございましたら、コメント欄よりお気軽にお知らせいただければ写真を追加いたします。\n\n【発送・梱包】\n・複数枚まとめて厚手のクッション材・専用ダンボールにて厳重に梱包し、発送いたします。\n・安心の匿名配送（おてがる配送）でお届けします。\n\n即購入大歓迎です！よろしくお願いいたします。"}];
+
+let currentTab = 'all';
+let searchQuery = '';
+let doneItems = JSON.parse(localStorage.getItem('paypay_record_done_items') || '{}');
+
+function saveDone(id, isChecked) {
+  if (isChecked) {
+    doneItems[id] = true;
+  } else {
+    delete doneItems[id];
+  }
+  localStorage.setItem('paypay_record_done_items', JSON.stringify(doneItems));
+  render();
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.innerText = msg;
+  toast.classList.add('show');
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2500);
+}
+
+function copyText(text, btn, label) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    const oldText = btn.innerText;
+    btn.innerText = '✓ コピー完了';
+    showToast(`${label}をコピーしました！`);
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerText = oldText;
+    }, 1800);
+  }).catch(err => {
+    alert('コピーに失敗しました: ' + err);
+  });
+}
+
+// ★ クリップボードへ画像をコピーする関数 ★
+async function copyImageToClipboard(photoName, btn) {
+  const origBtnText = btn.innerHTML;
+  btn.innerText = '⏳ コピー中...';
+
+  try {
+    let dataUrl = window.RECORD_IMAGES && window.RECORD_IMAGES[photoName];
+    if (!dataUrl) {
+      // フォールバック: edited フォルダから直接ロード
+      dataUrl = 'edited/' + photoName;
+    }
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = dataUrl;
+    await img.decode();
+
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(b => {
+        if (b) resolve(b);
+        else reject(new Error('Canvas toBlob failed'));
+      }, 'image/png');
+    });
+
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': blob })
+    ]);
+
+    btn.classList.add('copied');
+    btn.innerText = '✓ コピー完了！';
+    showToast(`画像をコピーしました！Yahoo!フリマで [Cmd + V] してください`);
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = origBtnText;
+    }, 2000);
+  } catch (err) {
+    console.error('Image copy error:', err);
+    btn.innerText = '✕ 失敗';
+    alert('画像のコピーに失敗しました。ブラウザのセキュリティ設定により制限されている可能性があります。直接画像をドラッグ＆ドロップするか、画像を右クリックして「画像をコピー」をお試しください。\n詳細: ' + err.message);
+    setTimeout(() => {
+      btn.innerHTML = origBtnText;
+    }, 2000);
+  }
+}
+
+function openModal(photoName) {
+  const dataUrl = (window.RECORD_IMAGES && window.RECORD_IMAGES[photoName]) || ('edited/' + photoName);
+  document.getElementById('modalImg').src = dataUrl;
+  document.getElementById('imageModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('imageModal').classList.remove('active');
+}
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+function copyItemField(id, isSet, field, btn, label) {
+  let item = null;
+  if (isSet) {
+    item = setsData.find(s => s.id === id);
+  } else {
+    item = itemsData.find(it => it.id === parseInt(id));
+  }
+  if (!item) return;
+
+  let text = '';
+  if (field === 'title') text = item.listing_title;
+  else if (field === 'desc') text = item.listing_description;
+  else if (field === 'price') text = String(item.price);
+
+  copyText(text, btn, label);
+}
+
+function setTab(btn, tabName) {
+  currentTab = tabName;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function handleSearch() {
+  searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+  render();
+}
+
+function render() {
+  const container = document.getElementById('itemsGrid');
+  container.innerHTML = '';
+
+  let list = [];
+
+  if (currentTab === 'sets') {
+    list = setsData.map(s => Object.assign({}, s, { isSet: true }));
+  } else {
+    list = itemsData.filter(item => {
+      if (currentTab === 'solo') return item.is_recommended_solo;
+      if (currentTab === 'stones') return item.artist.indexOf('Rolling Stones') !== -1;
+      if (currentTab === 'rod') return item.artist.indexOf('Rod Stewart') !== -1;
+      if (currentTab === 'classic') return item.category.indexOf('クラシック') !== -1;
+      return true;
+    }).map(it => Object.assign({}, it, { isSet: false }));
+  }
+
+  if (searchQuery) {
+    list = list.filter(item => {
+      const target = (item.title || item.name || '') + ' ' + (item.artist || '') + ' ' + (item.code || '');
+      return target.toLowerCase().indexOf(searchQuery) !== -1;
+    });
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #888;">該当するレコードが見つかりませんでした。</div>';
+    return;
+  }
+
+  list.forEach(item => {
+    const isDone = !!doneItems[item.id];
+    const isSet = item.isSet;
+    const isHighValue = isSet || item.is_recommended_solo;
+
+    const titleText = item.listing_title;
+    const descText = item.listing_description;
+    const price = item.price;
+    const fee = Math.floor(price * 0.05);
+    const takeHome = price - fee - 850;
+
+    const card = document.createElement('div');
+    card.className = 'card' + (isHighValue ? ' high-value' : '') + (isDone ? ' is-done' : '');
+
+    const catBadge = isSet ? ('セット売り (' + item.count + '枚)') : item.category;
+    const dispTitle = isSet ? item.name : item.title;
+
+    // 写真プレビューHTMLの生成
+    const photos = item.photos || [];
+    let photosHtml = '';
+    if (photos.length > 0) {
+      const thumbsHtml = photos.map((p, idx) => {
+        const label = idx === 0 ? 'ジャケット表' : (idx === 1 ? '裏面' : '付属品・内袋');
+        const imgSrc = (window.RECORD_IMAGES && window.RECORD_IMAGES[p]) || ('edited/' + p);
+        return `
+          <div class="photo-thumb-card">
+            <img src="${imgSrc}" loading="lazy" alt="${p}" title="クリックで拡大 / ドラッグ可能" onclick="openModal('${p}')">
+            <span class="photo-thumb-label">${label}</span>
+            <button class="btn-copy-img" onclick="copyImageToClipboard('${p}', this)">
+              📋 画像コピー
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      photosHtml = `
+        <div class="photos-container">
+          <div class="photos-header">
+            <span>📷 レコード写真 (${photos.length}枚)</span>
+            <span style="color: #888; font-weight: normal;">※クリックで拡大 / ボタンでコピー</span>
+          </div>
+          <div class="photos-list">
+            ${thumbsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div>
+          <span class="tag-category">${catBadge}</span>
+          <div class="card-title">${dispTitle}</div>
+          <div class="card-artist">${item.artist}</div>
+        </div>
+        <label class="done-toggle">
+          <input type="checkbox" ${isDone ? 'checked' : ''} onchange="saveDone('${item.id}', this.checked)">
+          出品済
+        </label>
+      </div>
+
+      <div class="card-body">
+        <!-- 写真＆画像コピー -->
+        ${photosHtml}
+
+        <div class="info-row">
+          <span class="info-label">推奨出品価格 (手取り試算)</span>
+          <span class="price-tag">¥${price.toLocaleString()}</span>
+        </div>
+        <div class="fee-hint">PayPay手数料5%: -¥${fee.toLocaleString()} ｜ 宅急便80目安: -¥850 ｜ <strong>純手取り約 ¥${takeHome.toLocaleString()}</strong></div>
+
+        <!-- タイトルコピー -->
+        <div class="copy-group">
+          <div class="copy-group-label">
+            <span>出品用商品タイトル</span>
+            <button class="btn-copy" onclick="copyItemField('${item.id}', ${isSet}, 'title', this, 'タイトル')">タイトルコピー</button>
+          </div>
+          <div class="copy-val">${titleText}</div>
+        </div>
+
+        <!-- 価格コピー -->
+        <div class="copy-group" style="flex-direction: row; justify-content: space-between; align-items: center;">
+          <span style="font-size: 12px; font-weight: bold;">販売価格: ¥${price.toLocaleString()}</span>
+          <button class="btn-copy" onclick="copyItemField('${item.id}', ${isSet}, 'price', this, '販売価格')">価格コピー (${price})</button>
+        </div>
+
+        <!-- 説明文コピー -->
+        <div class="copy-group">
+          <div class="copy-group-label">
+            <span>商品説明文（試聴なし・ジャンク・免責文言組込済）</span>
+            <button class="btn-copy" onclick="copyItemField('${item.id}', ${isSet}, 'desc', this, '説明文')">説明文コピー</button>
+          </div>
+          <div class="copy-val">${descText}</div>
+        </div>
+
+        <button class="btn-copy-main" onclick="copyItemField('${item.id}', ${isSet}, 'desc', this, '商品説明文')">
+          📋 商品説明文を一括コピー
+        </button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>
